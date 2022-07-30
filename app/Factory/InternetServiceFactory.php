@@ -8,7 +8,7 @@ use Carbon\Exceptions\InvalidTypeException;
 
 class InternetServiceFactory
 {
-    public static function make($type, $token = null)
+    public static function make($type)
     {
         switch ($type) {
             case 'mpt':

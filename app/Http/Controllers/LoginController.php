@@ -37,7 +37,7 @@ class LoginController extends Controller
         }
         
         return response()->json([
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $user->createToken('User-Token')->plainTextToken
         ]);
     }

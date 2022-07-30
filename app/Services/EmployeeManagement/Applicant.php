@@ -12,5 +12,6 @@ class Applicant implements Employee
     public function salary()
     {
         // TODO: Implement salary() method.
+        return 200;
     }
 }

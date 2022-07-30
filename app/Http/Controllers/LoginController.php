@@ -2,54 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Validator;
 
 class LoginController extends Controller
 {
     public function login(Request $request)
     {
-        if (!$request->email) {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|min:6',
+            'password' => 'required|string|min:8'
+        ], 
+        [
+            'required' =>  ':attribute is required',
+            'min:6' => ':attribute is invalid'
+        ]);
+
+        // If Validation Fail
+        if ($validator->fails()) {
             return response()->json([
-                'status'  => 422,
-                'message' => 'email is required'
-            ]);
+                'message' => $validator->errors()->first()
+            ], 422);
         }
         
-        if(strlen($request->email) < 6) {
-            return response()->json([
-                'status'  => 422,
-                'message' => 'email is invalid'
-            ]);
-        }
-    
-        if (!$request->password) {
-            return response()->json([
-                'status'  => 422,
-                'message' => 'password is required'
-            ]);
-        }
-        if(strlen($request->password) < 8) {
-            return response()->json([
-                'status'  => 422,
-                'message' => 'password is invalid'
-            ]);
-        }
-    
+        // If Invalid Credentials
         $user = User::where('email', $request->email)->first();
-        if (!$user) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
-                'status'  => 404,
-                'message' => 'Model not found.'
-            ]);
-        }
-    
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status'  => 404,
                 'message' => 'Invalid credentials'
-            ]);
+            ], 401);
         }
         
         return response()->json([
